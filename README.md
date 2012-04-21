@@ -15,3 +15,13 @@ To minify, use [shrink](https://github.com/jacobwg/shrink) or your favorite mini
 ```
 $ shrink hulu-filter.js
 ```
+
+# runner
+
+The `runner` directory contains an example `app.coffee` that auto-starts the filter on page load or on script load (suitable for a bookmarklet).
+
+To compile this version:
+
+```
+$ coffee -j runner/application.js -c src/*.coffee runner/src/*.coffee
+```

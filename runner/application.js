@@ -1,5 +1,5 @@
 (function() {
-  var AES, AESData, AESdecrypt, Filter, HuluVideo, Muter, Notification, Util, keyExpansion, maxkc, maxrk, prepare_decryption,
+  var AES, AESData, AESdecrypt, Filter, HuluVideo, Muter, Notification, Util, keyExpansion, maxkc, maxrk, pageinit, prepare_decryption,
     __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __slice = Array.prototype.slice;
 
@@ -820,5 +820,51 @@
   })();
 
   window.Util = Util;
+
+  pageinit = function() {
+    var error, info, success;
+    info = function(message) {
+      return Notification.info(message);
+    };
+    error = function(message) {
+      return Notification.error(message);
+    };
+    success = function(message) {
+      return Notification.success(message);
+    };
+    info("Filter loading...");
+    window.h = new HuluVideo;
+    if (!h.is_video || !h.has_cid) {
+      return error('Oops - this is not a valid Hulu video page...');
+    } else {
+      h.bind('change:subtitles', function() {
+        return info('Subtitles loaded successfully - parsing for profanity...');
+      });
+      h.bind('no:subtitles', function() {
+        return error('This video does not have subtitles - we cannot filter...');
+      });
+      h.bind('change:blocklist', function() {
+        var muter;
+        success('Success!  Your video is filtered...');
+        muter = new Muter(h.blocklist);
+        muter.rebuild();
+        muter.startRebuildTesting();
+        return window.muter = muter;
+      });
+      return h.load_subtitles();
+    }
+  };
+
+  if (window.HuluFilterLoaded) {
+    info('The filter is already running...');
+  } else {
+    if (document.readyState === "complete") {
+      window.setTimeout(pageinit, 1000);
+    } else if (window.addEventListener) {
+      window.addEventListener('load', pageinit, false);
+    }
+  }
+
+  window.HuluFilterLoaded = true;
 
 }).call(this);
