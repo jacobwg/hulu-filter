@@ -12,16 +12,16 @@ class HuluVideo
     @decrypt_keys = []
     if document.player
       @is_video = true
-      query = document.player.attributes["flashvars"].value
-      vars = query.split("&")
-      i = 0
-      while i < vars.length
-        pair = vars[i].split("=")
-        if pair[0] is "content_id"
-          @cid = unescape(pair[1])
-          @has_cid = true
-          @load_subtitles()
-        i++
+
+      for element in document.getElementsByTagName('meta')
+        cid = element.getAttribute('content') if element.getAttribute('property') is 'og:image'
+
+      if cid
+        cid = cid.split('/')
+        cid = cid[cid.length - 1].split('?')[0]
+        @cid = unescape(cid)
+        @has_cid = true
+        @load_subtitles()
 
   bind: (event, callback) ->
     @events[event] ||= []
